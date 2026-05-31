@@ -1,0 +1,20 @@
+# sensitive config (contains tokens & webhooks)
+config.json
+
+# downloaded/uploaded media folders
+1_uploader/
+2_downloader/
+3_self_uploader/
+
+# claude code local settings
+.claude/
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# misc
+*.log

@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Discord Tools</title>
+<style>
+:root{
+  --bg:#1e1f22;--side:#2b2d31;--card:#313338;--inp:#1e1f22;
+  --brd:#3f4147;--acc:#5865f2;--acc2:#4752c4;
+  --grn:#23a55a;--red:#f23f42;--yel:#f0b232;--teal:#00aff4;--pur:#c278ee;
+  --txt:#dbdee1;--mut:#80848e;--wht:#ffffff;--log:#111214;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);display:flex;height:100vh;overflow:hidden}
+
+/* ── Sidebar ── */
+#sb{width:200px;min-width:200px;background:var(--side);display:flex;flex-direction:column;border-right:1px solid var(--brd)}
+#logo{padding:14px 12px 10px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--wht)}
+.ns{padding:10px 12px 3px;font-size:10px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.nv{padding:8px 10px;cursor:pointer;border-radius:5px;margin:1px 5px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);transition:background .12s;user-select:none}
+.nv:hover{background:rgba(255,255,255,.05);color:var(--txt)}
+.nv.on{background:rgba(88,101,242,.18);color:var(--wht)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--brd);margin-left:auto;flex-shrink:0}
+.dot.run{background:var(--grn);box-shadow:0 0 5px var(--grn)}
+.dot.err{background:var(--red)}
+#foot{margin-top:auto;padding:8px 12px;font-size:11px;color:var(--mut);border-top:1px solid var(--brd)}
+
+/* ── Main ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#cnt{flex:1;overflow:hidden;display:flex}
+#left{flex:1;overflow-y:auto;padding:16px;min-width:0}
+#right{width:360px;min-width:260px;display:flex;flex-direction:column;background:var(--log);border-left:1px solid var(--brd)}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--brd);border-radius:8px;padding:14px;margin-bottom:12px}
+.card h2{font-size:13px;font-weight:700;color:var(--wht);margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.desc{font-size:12px;color:var(--mut);margin-bottom:10px;line-height:1.5}
+
+/* ── Job cards ── */
+.jcard{background:var(--card);border:1px solid var(--brd);border-radius:7px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:border-color .12s}
+.jcard:hover{border-color:rgba(88,101,242,.5)}
+.jcard.sel{border-color:var(--acc)}
+.jch{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.jlbl{font-size:13px;font-weight:600;color:var(--wht);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jprog{font-size:11px;color:var(--mut);margin-bottom:6px}
+.jerr{font-size:11px;color:var(--red);margin-top:3px}
+.jbtns{display:flex;gap:6px;margin-top:7px}
+
+/* ── Badges ── */
+.badge{font-size:10px;padding:2px 7px;border-radius:9px;font-weight:700;flex-shrink:0}
+.b-run{background:rgba(35,165,90,.18);color:var(--grn)}
+.b-done{background:rgba(128,132,142,.12);color:var(--mut)}
+.b-err{background:rgba(242,63,66,.18);color:var(--red)}
+.b-stop{background:rgba(128,132,142,.12);color:var(--mut)}
+.b-type-up{background:rgba(88,101,242,.15);color:var(--acc)}
+.b-type-dl{background:rgba(0,175,244,.15);color:var(--teal)}
+.b-type-sb{background:rgba(35,165,90,.15);color:var(--grn)}
+
+/* ── Forms ── */
+.grid{display:grid;gap:9px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select,.field textarea{background:var(--inp);border:1px solid var(--brd);border-radius:4px;color:var(--txt);padding:7px 9px;font-size:12px;font-family:inherit;transition:border-color .12s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--acc)}
+.field input::placeholder{color:var(--mut)}
+.hint{font-size:10px;color:var(--mut);margin-top:1px}
+.sep{height:1px;background:var(--brd);margin:12px 0}
+
+/* ── Checkboxes (media types) ── */
+.mtype-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.mtype{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:5px;padding:5px 10px;cursor:pointer;font-size:12px;color:var(--mut);transition:all .12s;user-select:none}
+.mtype input{accent-color:var(--acc);cursor:pointer}
+.mtype.on{border-color:var(--acc);color:var(--txt);background:rgba(88,101,242,.08)}
+
+/* ── Buttons ── */
+.brow{display:flex;gap:7px;align-items:center;margin-top:11px;flex-wrap:wrap}
+.btn{padding:7px 15px;border-radius:4px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .12s}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-go{background:var(--grn);color:#fff}.btn-go:hover:not(:disabled){background:#1a7d42}
+.btn-stop{background:var(--red);color:#fff}.btn-stop:hover:not(:disabled){background:#b82e30}
+.btn-save{background:var(--acc);color:#fff}.btn-save:hover:not(:disabled){background:var(--acc2)}
+.btn-ghost{background:transparent;color:var(--mut);border:1px solid var(--brd)}.btn-ghost:hover{background:rgba(255,255,255,.05);color:var(--txt)}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+/* ── Manager lists (webhooks/tokens) ── */
+.mlist{list-style:none;display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto;margin-bottom:6px}
+.mlist li{background:var(--inp);border:1px solid var(--brd);border-radius:4px;padding:5px 9px;display:flex;align-items:center;font-size:12px;gap:7px}
+.mlist li .ml{flex:0 0 90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt)}
+.mlist li .mm{flex:1;font-family:Consolas,monospace;color:var(--mut);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mlist li button{background:none;border:none;cursor:pointer;color:var(--mut);font-size:15px;line-height:1;flex-shrink:0}
+.mlist li button:hover{color:var(--red)}
+.madd{border-top:1px solid var(--brd);margin-top:8px;padding-top:9px}
+.mempty{font-size:12px;color:var(--mut);padding:2px 0;margin-bottom:4px}
+
+/* ── Tabs ── */
+.tab{display:none}.tab.on{display:block}
+
+/* ── Section label ── */
+.slbl{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+
+/* ── Log panel ── */
+#log-hdr{padding:9px 11px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--card);gap:8px}
+#log-hdr .lt{font-size:12px;font-weight:700;color:var(--wht);display:flex;align-items:center;gap:5px}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--grn);box-shadow:0 0 4px var(--grn)}
+#log-jf{background:var(--inp);border:1px solid var(--brd);border-radius:4px;color:var(--txt);font-size:11px;padding:3px 6px;max-width:120px}
+#log-out{flex:1;overflow-y:auto;padding:7px;font-family:Consolas,monospace;font-size:11px;line-height:1.6;min-height:0}
+.ll{display:flex;gap:5px;margin-bottom:1px;padding:1px 2px;border-radius:3px}
+.ll:hover{background:rgba(255,255,255,.03)}
+.lt2{color:#4a4d52;flex-shrink:0;font-size:10px;padding-top:1px}
+.ls{flex-shrink:0;font-weight:700;min-width:58px;font-size:10px;padding-top:1px}
+.ls.uploader{color:var(--acc)}.ls.downloader{color:var(--teal)}
+.ls.selfbot{color:var(--grn)}.ls.system{color:var(--mut)}
+.lm{color:var(--txt);word-break:break-all;font-size:11px}
+#log-foot{padding:5px 8px;border-top:1px solid var(--brd);display:flex;gap:8px;flex-shrink:0;background:var(--card);align-items:center}
+.chk{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mut);cursor:pointer}
+.chk input{accent-color:var(--acc)}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:18px;right:18px;background:var(--card);border:1px solid var(--brd);border-radius:6px;padding:8px 14px;font-size:12px;color:var(--txt);box-shadow:0 4px 18px rgba(0,0,0,.5);transform:translateY(50px);opacity:0;transition:all .25s;z-index:999}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.ok{border-left:3px solid var(--grn)}
+#toast.bad{border-left:3px solid var(--red)}
+
+/* ── Info box ── */
+.info{padding:7px 9px;background:rgba(0,175,244,.07);border:1px solid rgba(0,175,244,.2);border-radius:5px;font-size:11px;color:var(--teal);margin-top:8px}
+.warn{padding:7px 9px;background:rgba(240,178,50,.07);border:1px solid rgba(240,178,50,.2);border-radius:5px;font-size:11px;color:var(--yel);margin-top:8px}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+
+/* ── Drop zone ── */
+#dz{border:2px dashed var(--brd);border-radius:7px;padding:22px 16px;text-align:center;cursor:pointer;transition:all .15s;margin-top:4px}
+#dz:hover,#dz.over{border-color:var(--acc);background:rgba(88,101,242,.06)}
+#dz.over{border-style:solid}
+.dz-item{display:flex;align-items:center;gap:7px;font-size:11px;padding:3px 6px;border-radius:4px;background:var(--inp);border:1px solid var(--brd)}
+.dz-item .dz-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt)}
+.dz-item .dz-ok{color:var(--grn);font-weight:700;flex-shrink:0}
+.dz-item .dz-fail{color:var(--red);font-weight:700;flex-shrink:0}
+.dz-item .dz-pend{color:var(--mut);flex-shrink:0}
+
+/* ── Folder browser modal ── */
+#fb-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:none;align-items:center;justify-content:center}
+#fb-overlay.open{display:flex}
+#fb-modal{background:var(--card);border:1px solid var(--brd);border-radius:10px;width:440px;max-height:520px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+#fb-header{padding:12px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px}
+#fb-header span{font-size:13px;font-weight:700;color:var(--wht);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#fb-list{flex:1;overflow-y:auto;padding:6px}
+.fb-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:5px;cursor:pointer;font-size:12px;color:var(--txt);transition:background .1s}
+.fb-row:hover{background:rgba(255,255,255,.06)}
+.fb-row svg{flex-shrink:0;color:var(--yel)}
+.fb-row span{flex:1}
+.fb-row .fb-sel{background:var(--acc);color:#fff;border:none;border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;cursor:pointer;flex-shrink:0}
+.fb-row .fb-sel:hover{background:var(--acc2)}
+#fb-empty{padding:14px;font-size:12px;color:var(--mut);text-align:center}
+#fb-footer{padding:10px 12px;border-top:1px solid var(--brd);display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+#fb-curpath{font-size:11px;color:var(--mut);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:Consolas,monospace}
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<aside id="sb">
+  <div id="logo">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z" fill="#5865F2"/></svg>
+    Discord Tools
+  </div>
+  <div class="ns">Modules</div>
+  <div class="nv on" id="nv-uploader" onclick="go('uploader',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4z"/><path d="M5 18h14v2H5z"/></svg>
+    1 · Uploader <span class="dot" id="d-uploader"></span>
+  </div>
+  <div class="nv" id="nv-downloader" onclick="go('downloader',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>
+    2 · Downloader <span class="dot" id="d-downloader"></span>
+  </div>
+  <div class="nv" id="nv-selfbot" onclick="go('selfbot',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+    3 · Selfbot <span class="dot" id="d-selfbot"></span>
+  </div>
+  <div id="foot"><span id="cst">connecting…</span></div>
+</aside>
+
+<!-- ── Main ── -->
+<div id="main">
+  <div id="cnt">
+    <div id="left">
+
+      <!-- ══ TAB: UPLOADER ══ -->
+      <div id="tab-uploader" class="tab on">
+
+        <!-- Drop Zone -->
+        <div class="card" style="margin-bottom:12px">
+          <h2>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--acc)"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            Quick Drop
+          </h2>
+          <p class="desc">Select a webhook below, then drag & drop files to send them instantly — no folder needed.</p>
+
+          <div class="field" style="margin-bottom:9px">
+            <label>Webhook</label>
+            <select id="dz-wh-sel" onchange="dzWhSel()">
+              <option value="">— select saved webhook —</option>
+              <option value="__custom__">+ paste custom URL</option>
+            </select>
+          </div>
+          <div id="dz-wh-custom" style="display:none;margin-bottom:9px">
+            <div class="field">
+              <label>Webhook URL</label>
+              <input type="password" id="dz-wh-url" placeholder="https://discord.com/api/webhooks/…"/>
+            </div>
+          </div>
+
+          <div id="dz" onclick="document.getElementById('dz-fi').click()">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style="opacity:.35;display:block;margin:0 auto 6px"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            <div style="font-size:13px;font-weight:600;color:var(--txt)">Drop files here</div>
+            <div style="font-size:11px;color:var(--mut);margin-top:3px">or click to select</div>
+          </div>
+          <input type="file" id="dz-fi" multiple style="display:none" onchange="dzHandleFiles(event.target.files);event.target.value=''"/>
+
+          <div id="dz-results" style="margin-top:8px;display:flex;flex-direction:column;gap:3px;max-height:150px;overflow-y:auto"></div>
+        </div>
+
+        <div class="slbl">Active Upload Jobs</div>
+        <div id="ul-jobs"></div>
+        <div id="ul-none" style="font-size:12px;color:var(--mut);margin-bottom:12px">No jobs running.</div>
+
+        <div class="card">
+          <h2>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--acc)"><path d="M9 16h6v-6h4l-7-7-7 7h4z"/><path d="M5 18h14v2H5z"/></svg>
+            New Upload Job
+          </h2>
+          <p class="desc">Each job uploads from one folder to one webhook. Run multiple jobs in parallel to send to different channels simultaneously.</p>
+
+          <div class="grid g2" style="margin-bottom:9px">
+            <div class="field">
+              <label>Job Label</label>
+              <input type="text" id="ul-lbl" placeholder="e.g. Channel #memes"/>
+            </div>
+            <div class="field">
+              <label>Max File Size (MB)</label>
+              <input type="number" id="ul-mb" value="25" min="1" max="500"/>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:9px">
+            <label>Source Folder</label>
+            <div style="display:flex;gap:5px">
+              <input type="text" id="ul-src" placeholder="click Browse or type a path" style="flex:1"/>
+              <button class="btn btn-ghost btn-sm" onclick="openBrowser('ul-src')">Browse</button>
+            </div>
+            <span class="hint">Files of the selected types will be uploaded from this folder</span>
+          </div>
+
+          <div class="field" style="margin-bottom:9px">
+            <label>Webhook</label>
+            <select id="ul-wh-sel" onchange="ulWhSel()">
+              <option value="">— select saved webhook —</option>
+              <option value="__custom__">+ paste custom URL</option>
+            </select>
+          </div>
+          <div id="ul-wh-custom" style="display:none;margin-bottom:9px">
+            <div class="field">
+              <label>Webhook URL</label>
+              <input type="password" id="ul-wh-url" placeholder="https://discord.com/api/webhooks/…"/>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Media Types</label>
+            <div class="mtype-row">
+              <label class="mtype on" id="ul-all-lbl" style="border-color:var(--acc);color:var(--txt);background:rgba(88,101,242,.08)">
+                <input type="checkbox" id="ul-all" checked onchange="ulToggleAll(this)"> All
+              </label>
+              <label class="mtype on"><input type="checkbox" checked value="image" onchange="ulMtypeChange()"> Images</label>
+              <label class="mtype on"><input type="checkbox" checked value="gif"   onchange="ulMtypeChange()"> GIFs</label>
+              <label class="mtype on"><input type="checkbox" checked value="video" onchange="ulMtypeChange()"> Videos</label>
+            </div>
+          </div>
+
+          <div class="brow">
+            <button class="btn btn-go" onclick="startUploaderJob()">Start Job</button>
+          </div>
+        </div>
+
+        <!-- Webhook Manager -->
+        <div class="card">
+          <h2>Saved Webhooks</h2>
+          <ul id="wh-list" class="mlist"></ul>
+          <p id="wh-empty" class="mempty">No webhooks saved.</p>
+          <div class="madd">
+            <div class="grid g2" style="margin-bottom:7px">
+              <div class="field"><label>Label</label><input type="text" id="wh-lbl" placeholder="e.g. #memes"/></div>
+              <div class="field"><label>Webhook URL</label><input type="password" id="wh-url" placeholder="https://discord.com/api/webhooks/…"/></div>
+            </div>
+            <button class="btn btn-save btn-sm" onclick="addWebhook()">+ Save Webhook</button>
+          </div>
+        </div>
+
+      </div><!-- /tab-uploader -->
+
+      <!-- ══ TAB: DOWNLOADER ══ -->
+      <div id="tab-downloader" class="tab">
+
+        <div class="slbl">Active Download Jobs</div>
+        <div id="dl-jobs"></div>
+        <div id="dl-none" style="font-size:12px;color:var(--mut);margin-bottom:12px">No jobs running.</div>
+
+        <div class="card">
+          <h2>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--teal)"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>
+            New Download Job
+          </h2>
+          <p class="desc">Each job scrapes one channel from top to bottom and saves all attachments. Run multiple jobs in parallel for different channels.</p>
+
+          <div class="grid g2" style="margin-bottom:9px">
+            <div class="field">
+              <label>Job Label</label>
+              <input type="text" id="dl-lbl" placeholder="e.g. Server #media"/>
+            </div>
+            <div class="field">
+              <label>Channel ID</label>
+              <input type="text" id="dl-ch" placeholder="1234567890123456789"/>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:9px">
+            <label>Token</label>
+            <select id="dl-tok-sel" onchange="dlTokSel()">
+              <option value="">— select saved token —</option>
+              <option value="__custom__">+ paste custom token</option>
+            </select>
+          </div>
+          <div id="dl-tok-custom" style="display:none;margin-bottom:9px">
+            <div class="field">
+              <label>User Token</label>
+              <input type="password" id="dl-tok-val" placeholder="Discord user token"/>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:9px">
+            <label>Save Folder</label>
+            <div style="display:flex;gap:5px">
+              <input type="text" id="dl-save" placeholder="click Browse or type a path" style="flex:1"/>
+              <button class="btn btn-ghost btn-sm" onclick="openBrowser('dl-save')">Browse</button>
+            </div>
+            <span class="hint">A subfolder named after the channel is created inside</span>
+          </div>
+
+          <div class="grid g2" style="margin-bottom:9px">
+            <div class="field">
+              <label>Media Types</label>
+              <div class="mtype-row" style="margin-top:4px">
+                <label class="mtype on"><input type="checkbox" checked value="image" onchange="mtypeToggle(this)"> Images</label>
+                <label class="mtype on"><input type="checkbox" checked value="gif"   onchange="mtypeToggle(this)"> GIFs</label>
+                <label class="mtype on"><input type="checkbox" checked value="video" onchange="mtypeToggle(this)"> Videos</label>
+              </div>
+            </div>
+            <div class="field">
+              <label>Separate Folders</label>
+              <div style="margin-top:6px">
+                <label class="mtype" id="dl-sep-lbl" style="width:fit-content">
+                  <input type="checkbox" id="dl-sep" onchange="this.closest('.mtype').classList.toggle('on',this.checked)">
+                  Sort into images / gifs / videos
+                </label>
+              </div>
+              <span class="hint" style="margin-top:4px">Creates subfolders per media type</span>
+            </div>
+          </div>
+
+          <div class="brow">
+            <button class="btn btn-go" onclick="startDownloaderJob()">Start Job</button>
+          </div>
+          <div class="warn">⚠ Uses a user token — Discord ToS. Use an alt account.</div>
+        </div>
+
+        <!-- Token Manager -->
+        <div class="card">
+          <h2>Saved Tokens</h2>
+          <ul id="tok-list" class="mlist"></ul>
+          <p id="tok-empty" class="mempty">No tokens saved.</p>
+          <div class="madd">
+            <div class="grid g2" style="margin-bottom:7px">
+              <div class="field"><label>Label</label><input type="text" id="tok-lbl" placeholder="e.g. Alt #1"/></div>
+              <div class="field"><label>User Token</label><input type="password" id="tok-val" placeholder="Discord user token"/></div>
+            </div>
+            <button class="btn btn-save btn-sm" onclick="addToken()">+ Save Token</button>
+          </div>
+        </div>
+
+      </div><!-- /tab-downloader -->
+
+      <!-- ══ TAB: SELFBOT ══ -->
+      <div id="tab-selfbot" class="tab">
+
+        <div class="card">
+          <h2>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--grn)"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+            Selfbot Uploader
+            <span class="badge b-stop" id="sb-badge">Stopped</span>
+          </h2>
+          <p class="desc">Watches a folder and sends one file every N minutes to a channel using your user token. Only one selfbot job can run at a time.</p>
+
+          <div id="sb-progress" style="font-size:12px;color:var(--grn);margin-bottom:8px;display:none"></div>
+
+          <div class="field" style="margin-bottom:9px">
+            <label>Token</label>
+            <select id="sb-tok-sel" onchange="sbTokSel()">
+              <option value="">— select saved token —</option>
+              <option value="__custom__">+ paste custom token</option>
+            </select>
+          </div>
+          <div id="sb-tok-custom" style="display:none;margin-bottom:9px">
+            <div class="field">
+              <label>User Token</label>
+              <input type="password" id="sb-tok-val" placeholder="Discord user token"/>
+            </div>
+          </div>
+
+          <div class="grid g2" style="margin-bottom:9px">
+            <div class="field">
+              <label>Channel ID</label>
+              <input type="text" id="sb-ch" placeholder="1234567890123456789"/>
+            </div>
+            <div class="field">
+              <label>Delay Between Sends (minutes)</label>
+              <input type="number" id="sb-delay" value="1" min="0.1" step="0.1"/>
+              <span class="hint">e.g. 1 = one file per minute</span>
+            </div>
+          </div>
+
+          <div class="grid g2" style="margin-bottom:9px">
+            <div class="field">
+              <label>Watch Folder</label>
+              <div style="display:flex;gap:5px">
+                <input type="text" id="sb-folder" placeholder="3_self_uploader/media" style="flex:1"/>
+                <button class="btn btn-ghost btn-sm" onclick="openBrowser('sb-folder')">Browse</button>
+              </div>
+              <span class="hint">Files in this folder are queued automatically</span>
+            </div>
+            <div class="field">
+              <label>Max File Size (MB)</label>
+              <input type="number" id="sb-mb" value="25" min="1" max="500"/>
+            </div>
+          </div>
+
+          <div class="brow">
+            <button class="btn btn-go"   id="sb-go"   onclick="startSelfbotJob()">Start</button>
+            <button class="btn btn-stop" id="sb-stop" onclick="stopSelfbot()" disabled>Stop</button>
+          </div>
+          <div class="warn">⚠ Selfbots violate Discord ToS. Use an alt account only.</div>
+        </div>
+
+        <!-- Selfbot drop zone -->
+        <div class="card">
+          <h2>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--grn)"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            Drop Files to Queue
+          </h2>
+          <p class="desc">Drop files here to add them to the watch folder. If the selfbot is running it will pick them up and send them on its timer.</p>
+          <div id="sb-dz" onclick="document.getElementById('sb-dz-fi').click()">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style="opacity:.3;display:block;margin:0 auto 6px"><path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            <div style="font-size:13px;font-weight:600;color:var(--txt)">Drop files here</div>
+            <div style="font-size:11px;color:var(--mut);margin-top:3px">or click to select — saved to watch folder</div>
+          </div>
+          <input type="file" id="sb-dz-fi" multiple style="display:none" onchange="sbHandleFiles(event.target.files);event.target.value=''"/>
+          <div id="sb-dz-results" style="margin-top:8px;display:flex;flex-direction:column;gap:3px;max-height:120px;overflow-y:auto"></div>
+        </div>
+
+      </div><!-- /tab-selfbot -->
+
+    </div><!-- /left -->
+
+    <!-- ── Log Panel ── -->
+    <div id="right">
+      <div id="log-hdr">
+        <div class="lt"><span class="ldot"></span> Live Logs</div>
+        <select id="log-jf" onchange="renderLogs()">
+          <option value="">All</option>
+        </select>
+      </div>
+      <div id="log-out"></div>
+      <div id="log-foot">
+        <button class="btn btn-ghost btn-sm" onclick="clearLog()">Clear</button>
+        <label class="chk"><input type="checkbox" id="asc" checked> Auto-scroll</label>
+      </div>
+    </div>
+
+  </div><!-- /cnt -->
+</div><!-- /main -->
+
+<!-- ── Folder Browser Modal ── -->
+<div id="fb-overlay" onclick="fbClose(event)">
+  <div id="fb-modal" onclick="event.stopPropagation()">
+    <div id="fb-header">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--yel)"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      <span id="fb-title">panel folder</span>
+    </div>
+    <div id="fb-list"></div>
+    <div id="fb-footer">
+      <span id="fb-curpath">/</span>
+      <button class="btn btn-ghost btn-sm" id="fb-up" onclick="fbUp()">↑ Up</button>
+      <button class="btn btn-ghost btn-sm" onclick="fbMkdir()">+ New Folder</button>
+      <button class="btn btn-save btn-sm" onclick="fbSelectCurrent()">Select This</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeBrowser()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let allLogs = [];
+let allJobs = {};
+let selectedJobId = "";
+let sbJobId = null;
+let webhooks = [];
+let tokens = [];
+let es = null;
+let _tt;
+
+// ── Tabs ───────────────────────────────────────────────────────────────────
+function go(t, el) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('on'));
+  document.querySelectorAll('.nv').forEach(x => x.classList.remove('on'));
+  document.getElementById('tab-' + t).classList.add('on');
+  el.classList.add('on');
+}
+
+// ── SSE ────────────────────────────────────────────────────────────────────
+function connectSSE() {
+  if (es) es.close();
+  es = new EventSource('/api/logs');
+  es.onmessage = e => {
+    const d = JSON.parse(e.data);
+    if (d.ping) return;
+    allLogs.push(d);
+    if (allLogs.length > 2000) allLogs.shift();
+    appendLog(d);
+  };
+  es.onerror = () => {
+    document.getElementById('cst').textContent = 'reconnecting…';
+    setTimeout(connectSSE, 3000);
+  };
+  es.onopen = () => { document.getElementById('cst').textContent = 'connected'; };
+}
+
+function appendLog(e) {
+  const f = document.getElementById('log-jf').value;
+  if (f && e.job_id !== f) return;
+  const out = document.getElementById('log-out');
+  const div = document.createElement('div');
+  div.className = 'll';
+  div.innerHTML = `<span class="lt2">${esc(e.t)}</span><span class="ls ${esc(e.source)}">[${esc(e.source)}]</span><span class="lm">${esc(e.msg)}</span>`;
+  out.appendChild(div);
+  if (out.children.length > 1200) out.removeChild(out.firstChild);
+  if (document.getElementById('asc').checked) div.scrollIntoView({block:'end'});
+}
+
+function renderLogs() {
+  const f = document.getElementById('log-jf').value;
+  const out = document.getElementById('log-out');
+  out.innerHTML = '';
+  for (const e of allLogs) {
+    if (!f || e.job_id === f) {
+      const div = document.createElement('div');
+      div.className = 'll';
+      div.innerHTML = `<span class="lt2">${esc(e.t)}</span><span class="ls ${esc(e.source)}">[${esc(e.source)}]</span><span class="lm">${esc(e.msg)}</span>`;
+      out.appendChild(div);
+    }
+  }
+  out.lastChild?.scrollIntoView({block:'end'});
+}
+
+function clearLog() { allLogs = []; document.getElementById('log-out').innerHTML = ''; }
+
+// ── Job polling ────────────────────────────────────────────────────────────
+async function pollJobs() {
+  try {
+    const jobs = await fetch('/api/jobs').then(r => r.json());
+    allJobs = {};
+    jobs.forEach(j => allJobs[j.id] = j);
+    renderJobList('uploader', 'ul-jobs', 'ul-none', 'd-uploader');
+    renderJobList('downloader', 'dl-jobs', 'dl-none', 'd-downloader');
+    updateSelfbotUI(jobs);
+    updateLogFilter(jobs);
+    document.getElementById('cst').textContent = 'connected';
+  } catch(e) { document.getElementById('cst').textContent = 'offline'; }
+}
+
+function renderJobList(type, listId, noneId, dotId) {
+  const container = document.getElementById(listId);
+  const none = document.getElementById(noneId);
+  const jobs = Object.values(allJobs).filter(j => j.type === type);
+  none.style.display = jobs.length ? 'none' : 'block';
+
+  // Update dot
+  const running = jobs.some(j => j.alive);
+  document.getElementById(dotId).className = 'dot' + (running ? ' run' : '');
+
+  // Sync cards
+  const existing = new Set([...container.querySelectorAll('.jcard')].map(el => el.dataset.jid));
+  const current = new Set(jobs.map(j => j.id));
+
+  // Remove old
+  for (const jid of existing) {
+    if (!current.has(jid)) container.querySelector(`[data-jid="${jid}"]`)?.remove();
+  }
+
+  // Add / update
+  for (const job of jobs) {
+    let card = container.querySelector(`[data-jid="${job.id}"]`);
+    if (!card) {
+      card = document.createElement('div');
+      card.className = 'jcard';
+      card.dataset.jid = job.id;
+      card.onclick = () => selectJob(job.id);
+      container.appendChild(card);
+    }
+    if (selectedJobId === job.id) card.classList.add('sel'); else card.classList.remove('sel');
+
+    const typeBadge = type === 'uploader' ? 'b-type-up' : 'b-type-dl';
+    const stBadge = job.status === 'running' ? 'b-run' : job.status === 'done' ? 'b-done' : job.status === 'error' ? 'b-err' : 'b-stop';
+    card.innerHTML = `
+      <div class="jch">
+        <span class="jlbl">${esc(job.label)}</span>
+        <span class="badge ${stBadge}">${esc(job.status)}</span>
+      </div>
+      ${job.progress ? `<div class="jprog">${esc(job.progress)}</div>` : ''}
+      ${job.error ? `<div class="jerr">${esc(job.error)}</div>` : ''}
+      <div class="jbtns">
+        ${job.alive ? `<button class="btn btn-stop btn-sm" onclick="event.stopPropagation();stopJob('${job.id}')">Stop</button>` : ''}
+        ${!job.alive ? `<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteJob('${job.id}')">Remove</button>` : ''}
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();selectJob('${job.id}')">Logs</button>
+      </div>`;
+  }
+}
+
+function updateSelfbotUI(jobs) {
+  const sbJob = jobs.find(j => j.type === 'selfbot');
+  const badge = document.getElementById('sb-badge');
+  const go = document.getElementById('sb-go');
+  const stop = document.getElementById('sb-stop');
+  const prog = document.getElementById('sb-progress');
+  const dot = document.getElementById('d-selfbot');
+
+  if (sbJob && sbJob.alive) {
+    sbJobId = sbJob.id;
+    badge.className = 'badge b-run'; badge.textContent = 'Running';
+    go.disabled = true; stop.disabled = false;
+    dot.className = 'dot run';
+    if (sbJob.progress) { prog.textContent = sbJob.progress; prog.style.display = 'block'; }
+  } else {
+    sbJobId = null;
+    badge.className = 'badge b-stop'; badge.textContent = 'Stopped';
+    go.disabled = false; stop.disabled = true;
+    dot.className = 'dot';
+    prog.style.display = 'none';
+  }
+}
+
+function updateLogFilter(jobs) {
+  const sel = document.getElementById('log-jf');
+  const cur = sel.value;
+  // rebuild
+  sel.innerHTML = '<option value="">All</option>';
+  for (const j of jobs) {
+    const opt = document.createElement('option');
+    opt.value = j.id;
+    opt.textContent = `${j.label} (${j.id})`;
+    sel.appendChild(opt);
+  }
+  // restore selection if still valid
+  if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+
+function selectJob(id) {
+  selectedJobId = id;
+  document.getElementById('log-jf').value = id;
+  renderLogs();
+  pollJobs();
+}
+
+// ── Job actions ────────────────────────────────────────────────────────────
+async function stopJob(id) {
+  await fetch(`/api/jobs/${id}/stop`, {method:'POST'});
+  await pollJobs();
+}
+async function deleteJob(id) {
+  const r = await fetch(`/api/jobs/${id}`, {method:'DELETE'});
+  const d = await r.json();
+  if (d.ok) { if (selectedJobId === id) { selectedJobId=''; document.getElementById('log-jf').value=''; } await pollJobs(); }
+  else toast(d.error || 'Failed', 'bad');
+}
+
+function getMediaTypes(parent) {
+  return [...parent.querySelectorAll('input[type=checkbox]')].filter(c => c.value !== 'sep' && c.checked).map(c => c.value);
+}
+
+async function startUploaderJob() {
+  const wh_sel = document.getElementById('ul-wh-sel').value;
+  let wh = '';
+  if (wh_sel === '__custom__') wh = document.getElementById('ul-wh-url').value.trim();
+  else {
+    const found = webhooks.find((_, i) => String(i) === wh_sel);
+    wh = found ? found.url : '';
+  }
+  const src = document.getElementById('ul-src').value.trim();
+  const lbl = document.getElementById('ul-lbl').value.trim() || 'Upload Job';
+  const mb  = parseFloat(document.getElementById('ul-mb').value) || 25;
+  const types = [...document.querySelectorAll('#tab-uploader .mtype input:checked')].map(c=>c.value);
+
+  if (!wh) { toast('Select or paste a webhook URL', 'bad'); return; }
+  if (!src) { toast('Enter a source folder', 'bad'); return; }
+  if (!types.length) { toast('Select at least one media type', 'bad'); return; }
+
+  const r = await fetch('/api/jobs', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({type:'uploader', label:lbl, cfg:{webhook_url:wh, source_folder:src, media_types:types, max_file_mb:mb}})
+  });
+  const d = await r.json();
+  if (d.ok) { toast('Job started', 'ok'); await pollJobs(); }
+  else toast(d.error || 'Failed', 'bad');
+}
+
+async function startDownloaderJob() {
+  const tok_sel = document.getElementById('dl-tok-sel').value;
+  let tok = '';
+  if (tok_sel === '__custom__') tok = document.getElementById('dl-tok-val').value.trim();
+  else {
+    const found = tokens.find((_, i) => String(i) === tok_sel);
+    tok = found ? found.token : '';
+  }
+  const ch   = document.getElementById('dl-ch').value.trim();
+  const lbl  = document.getElementById('dl-lbl').value.trim() || 'Download Job';
+  const save = document.getElementById('dl-save').value.trim() || '2_downloader';
+  const sep  = document.getElementById('dl-sep').checked;
+  const types = [...document.querySelectorAll('#tab-downloader .mtype input:checked')].map(c=>c.value);
+
+  if (!tok) { toast('Select or paste a token', 'bad'); return; }
+  if (!ch)  { toast('Enter a channel ID', 'bad'); return; }
+  if (!types.length) { toast('Select at least one media type', 'bad'); return; }
+
+  const r = await fetch('/api/jobs', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({type:'downloader', label:lbl, cfg:{token:tok, channel_id:ch, save_folder:save, separate_folders:sep, media_types:types}})
+  });
+  const d = await r.json();
+  if (d.ok) { toast('Job started', 'ok'); await pollJobs(); }
+  else toast(d.error || 'Failed', 'bad');
+}
+
+async function startSelfbotJob() {
+  const tok_sel = document.getElementById('sb-tok-sel').value;
+  let tok = '';
+  if (tok_sel === '__custom__') tok = document.getElementById('sb-tok-val').value.trim();
+  else {
+    const found = tokens.find((_, i) => String(i) === tok_sel);
+    tok = found ? found.token : '';
+  }
+  const ch     = document.getElementById('sb-ch').value.trim();
+  const dmin   = parseFloat(document.getElementById('sb-delay').value) || 1;
+  const folder = document.getElementById('sb-folder').value.trim() || '3_self_uploader/media';
+  const mb     = parseFloat(document.getElementById('sb-mb').value) || 25;
+
+  if (!tok) { toast('Select or paste a token', 'bad'); return; }
+  if (!ch)  { toast('Enter a channel ID', 'bad'); return; }
+
+  const r = await fetch('/api/jobs', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({type:'selfbot', label:`Selfbot → ${ch}`, cfg:{token:tok, channel_id:ch, delay_minutes:dmin, watch_folder:folder, max_file_mb:mb}})
+  });
+  const d = await r.json();
+  if (d.ok) { toast('Selfbot started', 'ok'); await pollJobs(); }
+  else toast(d.error || 'Failed', 'bad');
+}
+
+async function stopSelfbot() {
+  const jobs = await fetch('/api/jobs').then(r => r.json());
+  const sb = jobs.find(j => j.type === 'selfbot' && j.alive);
+  if (sb) await stopJob(sb.id);
+}
+
+// ── Webhook manager ────────────────────────────────────────────────────────
+async function loadWebhooks() {
+  webhooks = await fetch('/api/webhooks').then(r => r.json());
+  const ul = document.getElementById('wh-list');
+  const em = document.getElementById('wh-empty');
+  ul.innerHTML = '';
+  em.style.display = webhooks.length ? 'none' : 'block';
+
+  // Repopulate all webhook selects
+  for (const selId of ['ul-wh-sel', 'dz-wh-sel']) {
+    const s = document.getElementById(selId);
+    const cur = s.value;
+    s.innerHTML = '<option value="">— select saved webhook —</option>';
+    webhooks.forEach((w, i) => {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = `${w.label}  (${w.masked})`;
+      s.appendChild(opt);
+    });
+    s.insertAdjacentHTML('beforeend', '<option value="__custom__">+ paste custom URL</option>');
+    if ([...s.options].some(o => o.value === cur)) s.value = cur;
+  }
+
+  webhooks.forEach((w, i) => {
+    ul.insertAdjacentHTML('beforeend', `<li>
+      <span class="ml" title="${esc(w.label)}">${esc(w.label)}</span>
+      <span class="mm">${esc(w.masked)}</span>
+      <button onclick="deleteWebhook(${i})" title="Remove">×</button>
+    </li>`);
+  });
+}
+
+async function addWebhook() {
+  const url = document.getElementById('wh-url').value.trim();
+  const lbl = document.getElementById('wh-lbl').value.trim();
+  if (!url) { toast('Enter a webhook URL', 'bad'); return; }
+  const r = await fetch('/api/webhooks', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({url, label:lbl})});
+  const d = await r.json();
+  if (d.ok) { document.getElementById('wh-url').value=''; document.getElementById('wh-lbl').value=''; toast('Webhook saved','ok'); loadWebhooks(); }
+  else toast(d.error||'Failed','bad');
+}
+
+async function deleteWebhook(idx) {
+  const r = await fetch(`/api/webhooks/${idx}`, {method:'DELETE'});
+  if ((await r.json()).ok) { toast('Removed','ok'); loadWebhooks(); }
+}
+
+function ulWhSel() {
+  const v = document.getElementById('ul-wh-sel').value;
+  document.getElementById('ul-wh-custom').style.display = v === '__custom__' ? 'block' : 'none';
+}
+
+// ── Token manager ──────────────────────────────────────────────────────────
+async function loadTokens() {
+  tokens = await fetch('/api/tokens').then(r => r.json());
+  const ul = document.getElementById('tok-list');
+  const em = document.getElementById('tok-empty');
+  ul.innerHTML = '';
+  em.style.display = tokens.length ? 'none' : 'block';
+
+  // Repopulate both selects
+  for (const selId of ['dl-tok-sel', 'sb-tok-sel']) {
+    const sel = document.getElementById(selId);
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">— select saved token —</option>';
+    tokens.forEach((t, i) => {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = `${t.label}  (${t.masked})`;
+      sel.appendChild(opt);
+    });
+    sel.insertAdjacentHTML('beforeend', '<option value="__custom__">+ paste custom token</option>');
+    if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+  }
+
+  tokens.forEach((t, i) => {
+    ul.insertAdjacentHTML('beforeend', `<li>
+      <span class="ml" title="${esc(t.label)}">${esc(t.label)}</span>
+      <span class="mm">${esc(t.masked)}</span>
+      <button onclick="deleteToken(${i})" title="Remove">×</button>
+    </li>`);
+  });
+}
+
+async function addToken() {
+  const tok = document.getElementById('tok-val').value.trim();
+  const lbl = document.getElementById('tok-lbl').value.trim();
+  if (!tok) { toast('Enter a token', 'bad'); return; }
+  const r = await fetch('/api/tokens', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token:tok, label:lbl})});
+  const d = await r.json();
+  if (d.ok) { document.getElementById('tok-val').value=''; document.getElementById('tok-lbl').value=''; toast('Token saved','ok'); loadTokens(); }
+  else toast(d.error||'Failed','bad');
+}
+
+async function deleteToken(idx) {
+  const r = await fetch(`/api/tokens/${idx}`, {method:'DELETE'});
+  if ((await r.json()).ok) { toast('Removed','ok'); loadTokens(); }
+}
+
+function dlTokSel() {
+  const v = document.getElementById('dl-tok-sel').value;
+  document.getElementById('dl-tok-custom').style.display = v === '__custom__' ? 'block' : 'none';
+}
+function sbTokSel() {
+  const v = document.getElementById('sb-tok-sel').value;
+  document.getElementById('sb-tok-custom').style.display = v === '__custom__' ? 'block' : 'none';
+}
+
+// ── Media type toggles ────────────────────────────────────────────────────
+function mtypeToggle(cb) {
+  cb.closest('.mtype').classList.toggle('on', cb.checked);
+}
+
+function ulToggleAll(cb) {
+  const on = cb.checked;
+  document.getElementById('ul-all-lbl').classList.toggle('on', on);
+  document.querySelectorAll('#tab-uploader .mtype input[value]').forEach(c => {
+    c.checked = on;
+    c.closest('.mtype').classList.toggle('on', on);
+  });
+}
+
+function ulMtypeChange() {
+  const cbs = [...document.querySelectorAll('#tab-uploader .mtype input[value]')];
+  const allChecked = cbs.every(c => c.checked);
+  const allCb = document.getElementById('ul-all');
+  allCb.checked = allChecked;
+  document.getElementById('ul-all-lbl').classList.toggle('on', allChecked);
+  cbs.forEach(cb => cb.closest('.mtype').classList.toggle('on', cb.checked));
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Drop Zone ─────────────────────────────────────────────────────────────
+function dzWhSel() {
+  const v = document.getElementById('dz-wh-sel').value;
+  document.getElementById('dz-wh-custom').style.display = v === '__custom__' ? 'block' : 'none';
+}
+
+function dzGetWebhook() {
+  const sel = document.getElementById('dz-wh-sel').value;
+  if (sel === '__custom__') return document.getElementById('dz-wh-url').value.trim();
+  const found = webhooks.find((_, i) => String(i) === sel);
+  return found ? found.url : '';
+}
+
+async function dzHandleFiles(files) {
+  const wh = dzGetWebhook();
+  if (!wh) { toast('Select a webhook first', 'bad'); return; }
+  if (!files.length) return;
+
+  const results = document.getElementById('dz-results');
+
+  // Add pending items
+  const items = {};
+  for (const f of files) {
+    const div = document.createElement('div');
+    div.className = 'dz-item';
+    div.innerHTML = `<span class="dz-name">${esc(f.name)}</span><span class="dz-pend">uploading…</span>`;
+    results.prepend(div);
+    items[f.name] = div;
+  }
+
+  // Upload
+  const fd = new FormData();
+  fd.append('webhook_url', wh);
+  for (const f of files) fd.append('files', f);
+
+  try {
+    const r = await fetch('/api/drop-upload', {method:'POST', body:fd});
+    const d = await r.json();
+    if (d.error) { toast(d.error, 'bad'); return; }
+    for (const res of d.results) {
+      const div = items[res.name];
+      if (!div) continue;
+      const st = div.querySelector('.dz-pend');
+      if (st) {
+        st.className = res.ok ? 'dz-ok' : 'dz-fail';
+        st.textContent = res.ok ? '✓' : '✗';
+      }
+    }
+    const ok = d.results.filter(r => r.ok).length;
+    toast(`${ok}/${d.results.length} sent`, ok === d.results.length ? 'ok' : 'bad');
+  } catch(e) { toast('Upload error', 'bad'); }
+}
+
+// Drag events on the uploader drop zone
+(function() {
+  const dz = document.getElementById('dz');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('over');
+    if (e.dataTransfer.files.length) dzHandleFiles(e.dataTransfer.files);
+  });
+})();
+
+// ── Selfbot drop zone ─────────────────────────────────────────────────────
+async function sbHandleFiles(files) {
+  if (!files.length) return;
+  const folder = document.getElementById('sb-folder').value.trim() || '3_self_uploader/media';
+  const results = document.getElementById('sb-dz-results');
+
+  const fd = new FormData();
+  fd.append('folder', folder);
+  for (const f of files) fd.append('files', f);
+
+  // Show pending
+  const pending = document.createElement('div');
+  pending.className = 'dz-item';
+  pending.innerHTML = `<span class="dz-name">${files.length} file(s)</span><span class="dz-pend">saving…</span>`;
+  results.prepend(pending);
+
+  try {
+    const r = await fetch('/api/selfbot/drop', {method:'POST', body:fd});
+    const d = await r.json();
+    if (d.ok) {
+      pending.innerHTML = `<span class="dz-name">${d.saved.length} file(s) added</span><span class="dz-ok">✓ → ${esc(d.folder.split(/[\\/]/).pop())}/</span>`;
+      toast(`${d.saved.length} file(s) queued`, 'ok');
+    } else {
+      pending.innerHTML = `<span class="dz-name">Failed</span><span class="dz-fail">✗ ${esc(d.error||'')}</span>`;
+      toast(d.error || 'Failed', 'bad');
+    }
+  } catch(e) {
+    pending.innerHTML = `<span class="dz-name">Error</span><span class="dz-fail">✗</span>`;
+    toast('Upload error', 'bad');
+  }
+}
+
+(function() {
+  const dz = document.getElementById('sb-dz');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('over');
+    if (e.dataTransfer.files.length) sbHandleFiles(e.dataTransfer.files);
+  });
+})();
+
+// ── Folder Browser ────────────────────────────────────────────────────────
+let fbTargetInput = null;
+let fbCurrentPath = "";
+
+async function openBrowser(inputId) {
+  fbTargetInput = inputId;
+  fbCurrentPath = "";
+  document.getElementById('fb-overlay').classList.add('open');
+  await fbLoad("");
+}
+
+function closeBrowser() {
+  document.getElementById('fb-overlay').classList.remove('open');
+  fbTargetInput = null;
+}
+
+function fbClose(e) {
+  if (e.target === document.getElementById('fb-overlay')) closeBrowser();
+}
+
+async function fbLoad(path) {
+  fbCurrentPath = path;
+  const r = await fetch(`/api/browse?path=${encodeURIComponent(path)}`);
+  const d = await r.json();
+  fbCurrentPath = d.path;
+
+  const title = d.path ? d.path : "panel folder";
+  document.getElementById('fb-title').textContent = title;
+  document.getElementById('fb-curpath').textContent = d.path ? d.path + "/" : "/";
+  document.getElementById('fb-up').disabled = !d.can_up;
+
+  const list = document.getElementById('fb-list');
+  list.innerHTML = '';
+  if (!d.folders.length) {
+    list.innerHTML = '<div id="fb-empty">No subfolders here.</div>';
+    return;
+  }
+  for (const name of d.folders) {
+    const fullPath = d.path ? d.path + "/" + name : name;
+    const row = document.createElement('div');
+    row.className = 'fb-row';
+    row.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+      <span onclick="fbLoad('${esc(fullPath)}')">${esc(name)}</span>
+      <button class="fb-sel" onclick="fbPick('${esc(fullPath)}')">Select</button>`;
+    list.appendChild(row);
+  }
+}
+
+async function fbUp() {
+  const parts = fbCurrentPath.split("/").filter(Boolean);
+  parts.pop();
+  await fbLoad(parts.join("/"));
+}
+
+function fbPick(path) {
+  if (fbTargetInput) document.getElementById(fbTargetInput).value = path;
+  closeBrowser();
+}
+
+function fbSelectCurrent() {
+  if (fbTargetInput) document.getElementById(fbTargetInput).value = fbCurrentPath;
+  closeBrowser();
+}
+
+async function fbMkdir() {
+  const name = prompt("New folder name:");
+  if (!name) return;
+  const r = await fetch('/api/browse/mkdir', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({path: fbCurrentPath, name})
+  });
+  const d = await r.json();
+  if (d.ok) await fbLoad(fbCurrentPath);
+  else toast(d.error || 'Failed', 'bad');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+(async () => {
+  await loadWebhooks();
+  await loadTokens();
+  connectSSE();
+  await pollJobs();
+  setInterval(pollJobs, 2500);
+})();
+</script>
+</body>
+</html>

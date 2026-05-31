@@ -1,0 +1,8 @@
+flask
+aiohttp
+watchdog
+requests
+
+# Selfbot — must use discord.py-self, NOT official discord.py
+# pip install discord.py-self
+discord.py-self
